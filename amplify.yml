@@ -6,7 +6,7 @@ frontend:
         - npm install
     build:
       commands:
-        - npm run build
+        - npm run build:react
   artifacts:
     baseDirectory: build
     files:
