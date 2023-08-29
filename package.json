@@ -1,7 +1,7 @@
 {
     "name": "chatbox",
     "productName": "chatbox",
-    "main": "src/index.tsx",
+
     "version": "0.0.1",
     "private": true,
     "description": "Chatbox is a desktop app for multiple cutting-edge LLM models that available on Windows, Mac, Linux",
