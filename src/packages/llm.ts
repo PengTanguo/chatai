@@ -23,6 +23,7 @@ export async function chat(
     if (msgs.length === 0) {
         throw new Error('No messages to replay')
     }
+
     const head = msgs[0].role === 'system' ? msgs[0] : undefined
     if (head) {
         msgs = msgs.slice(1)

@@ -11,7 +11,7 @@ import { useTranslation } from 'react-i18next'
 
 export function getDefaultSettings(): Settings {
     return {
-        openaiKey: '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',
+        openaiKey: '',
         apiHost: 'https://api.openai.com',
         model: 'gpt-3.5-turbo',
         temperature: 0.7,
@@ -61,18 +61,25 @@ export async function writeConfig(config: Config) {
 // session store
 
 export async function readSessions(settings: Settings): Promise<Session[]> {
+    console.log("readSessions")
     const sessions: Session[] | undefined = await runtime.readStore('chat-sessions')
+
     if (!sessions) {
+
         return defaults.sessions
     }
     if (sessions.length === 0) {
-        return [createSession()]
+
+       // return [createSession()]
+        return defaults.sessions
     }
+
     return sessions.map((s: any) => {
         // 兼容旧版本的数据
         if (!s.model) {
             s.model = getDefaultSettings().model
         }
+
         return s
     })
 }
