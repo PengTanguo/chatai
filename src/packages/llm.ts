@@ -8,21 +8,7 @@ export interface OnTextCallbackResult {
     // cancel for fetch
     cancel: () => void
 }
-async function checkKey(){
-    console.log("test2222  apikey","checkKey")
-    const response = await fetch(`https://yzfcz1y9t0.execute-api.ap-northeast-1.amazonaws.com/dev/api/db/dbopenaicheckkey`, {
-        method: 'POST',
-        body: JSON.stringify({
-             id:"ch4gaikd5mt7ejsm6gr39r"
-        }),
 
-    })
-    await handleSSE(response, (message) => {
-        console.log("test2222",message)
-        return true
-    })
-    throw "please set my key"
-}
 export async function chat(
     apiKey: string,
     host: string,
@@ -76,15 +62,39 @@ export async function chat(
     let fullText = ''
     try {
         const messages = prompts.map((msg) => ({ role: msg.role, content: msg.content }))
-      const  bo= await checkKey()
+        const url = 'https://yzfcz1y9t0.execute-api.ap-northeast-1.amazonaws.com/dev/api/db/dbopenaicheckkey';
+// 你的POST数据
 
-        console.log("test2222 checkKey finish",messages)
-        console.log("test2222 checkKey finish",bo)
+// 请求选项
+        const options = {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                id: apiKey
+            })
+        };
+        console.log("test2222 checkKey start",msgs)
+// 发送请求
+     await   fetch(url, options)
+            .then(response => response.json())
+            .then(data => {
+                console.log("test2222 checkKey result",data.code)
 
+                if (data.code!=200){
+                    throw new Error(` please set key`)
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error)
+                throw new Error(`server is error`)
+            });
+        console.log("test2222 checkKey end",msgs[1])
         const response = await fetch(`${host}/v1/chat/completions`, {
             method: 'POST',
             headers: {
-                Authorization: `Bearer ${apiKey}`,
+                Authorization: `Bearer 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`,
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
