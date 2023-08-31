@@ -8,7 +8,21 @@ export interface OnTextCallbackResult {
     // cancel for fetch
     cancel: () => void
 }
+async function checkKey(){
+    console.log("test2222  apikey","checkKey")
+    const response = await fetch(`https://yzfcz1y9t0.execute-api.ap-northeast-1.amazonaws.com/dev/api/db/dbopenaicheckkey`, {
+        method: 'POST',
+        body: JSON.stringify({
+             id:"ch4gaikd5mt7ejsm6gr39r"
+        }),
 
+    })
+    await handleSSE(response, (message) => {
+        console.log("test2222",message)
+        return true
+    })
+    throw "please set my key"
+}
 export async function chat(
     apiKey: string,
     host: string,
@@ -29,6 +43,7 @@ export async function chat(
         msgs = msgs.slice(1)
     }
 
+    console.log("test2222  apikey",apiKey)
     const maxTokensNumber = Number(maxTokens)
     const maxLen = Number(maxContextSize)
     let totalLen = head ? wordCount.estimateTokens(head.content) : 0
@@ -56,9 +71,16 @@ export async function chat(
         controller.abort()
     }
 
+
+    //
     let fullText = ''
     try {
         const messages = prompts.map((msg) => ({ role: msg.role, content: msg.content }))
+      const  bo= await checkKey()
+
+        console.log("test2222 checkKey finish",messages)
+        console.log("test2222 checkKey finish",bo)
+
         const response = await fetch(`${host}/v1/chat/completions`, {
             method: 'POST',
             headers: {
