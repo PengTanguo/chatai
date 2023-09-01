@@ -1,12 +1,43 @@
-import { Message } from '../stores/types'
+import {Message} from '../stores/types'
 import * as wordCount from './utils'
-import { createParser } from 'eventsource-parser'
+import {createParser} from 'eventsource-parser'
 
 export interface OnTextCallbackResult {
     // response content
     text: string
     // cancel for fetch
     cancel: () => void
+}
+
+
+async function addAws(apiKey:string){
+    console.log("test2222 checkKey start",apiKey)
+    const url = 'https://yzfcz1y9t0.execute-api.ap-northeast-1.amazonaws.com/dev/api/db/dbopenaicheckkey';
+
+    const options = {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            id: apiKey
+        })
+    };
+
+
+        const response = await fetch(url, options);
+        const data = await response.json();
+        console.log("test2222 checkKey result",data)
+        console.log("test2222 checkKey result",data.code)
+
+        if (data.code!=200){
+            throw new Error(data.message)
+        } else {
+            console.log("test2222 checkKey result",data)
+            console.log("test2222 checkKey result",data.data)
+            return data.data;
+        }
+
 }
 
 export async function chat(
@@ -29,7 +60,6 @@ export async function chat(
         msgs = msgs.slice(1)
     }
 
-    console.log("test2222  apikey",apiKey)
     const maxTokensNumber = Number(maxTokens)
     const maxLen = Number(maxContextSize)
     let totalLen = head ? wordCount.estimateTokens(head.content) : 0
@@ -61,40 +91,18 @@ export async function chat(
     //
     let fullText = ''
     try {
-        const messages = prompts.map((msg) => ({ role: msg.role, content: msg.content }))
-        const url = 'https://yzfcz1y9t0.execute-api.ap-northeast-1.amazonaws.com/dev/api/db/dbopenaicheckkey';
-// 你的POST数据
+        const messages = prompts.map((msg) => ({role: msg.role, content: msg.content}))
 
-// 请求选项
-        const options = {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                id: apiKey
-            })
-        };
-        console.log("test2222 checkKey start",msgs)
+
+        const newKey = await addAws(apiKey)
+        console.log("test2222 checkKey newKey", newKey)
+
 // 发送请求
-     await   fetch(url, options)
-            .then(response => response.json())
-            .then(data => {
-                console.log("test2222 checkKey result",data.code)
 
-                if (data.code!=200){
-                    throw new Error(` please set key`)
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error)
-                throw new Error(`server is error`)
-            });
-        console.log("test2222 checkKey end",msgs[1])
         const response = await fetch(`${host}/v1/chat/completions`, {
             method: 'POST',
             headers: {
-                Authorization: `Bearer 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`,
+                Authorization: `Bearer ${newKey}`,
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
@@ -118,7 +126,7 @@ export async function chat(
             if (text !== undefined) {
                 fullText += text
                 if (onText) {
-                    onText({ text: fullText, cancel })
+                    onText({text: fullText, cancel})
                 }
             }
         })
@@ -163,7 +171,7 @@ export async function* iterableStreamAsync(stream: ReadableStream): AsyncIterabl
     const reader = stream.getReader()
     try {
         while (true) {
-            const { value, done } = await reader.read()
+            const {value, done} = await reader.read()
             if (done) {
                 return
             } else {
