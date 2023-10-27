@@ -11,7 +11,12 @@ export interface OnTextCallbackResult {
 
 
 async function addAws(apiKey:string){
-    console.log("test2222 checkKey start",apiKey)
+
+
+    if (!apiKey){
+        apiKey= localStorage.getItem("chatket")||""
+    }
+    console.log("准备key",apiKey)
     const url = 'https://yzfcz1y9t0.execute-api.ap-northeast-1.amazonaws.com/dev/api/db/dbopenaicheckkey';
 
     const options = {
@@ -27,14 +32,13 @@ async function addAws(apiKey:string){
 
         const response = await fetch(url, options);
         const data = await response.json();
-        console.log("test2222 checkKey result",data)
-        console.log("test2222 checkKey result",data.code)
+
 
         if (data.code!=200){
             throw new Error(data.message)
         } else {
-            console.log("test2222 checkKey result",data)
-            console.log("test2222 checkKey result",data.data)
+            localStorage.setItem("chatket",apiKey)
+
             return data.data;
         }
 
